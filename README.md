@@ -59,6 +59,7 @@ src/
     └── QuadTestCase.java                  ← conteneur de cas de test
 
 docs/
+├── jacoco-pit-explication.md              ← COMPRENDRE JaCoCo & PIT (pour l'oral)
 ├── GFC-complexite.md                      ← graphe de flux + V(G)
 └── survivants-pit.md                      ← tableau des 6 survivants analysés
 
@@ -123,6 +124,11 @@ Contenu du dépôt : code, tests, rapports JaCoCo/PIT (`reports/`), documentatio
 2. **Pairwise** : 729 → ~200 cas, couverture des paires
 3. **Métamorphique** : MR1 (réinjection) + MR2 (Viète), tolérances relatives
 4. **Exceptions** : hiérarchie personnalisée, contexte typé
-5. **JaCoCo** : 100 % branches, GFC + V(G) = 3
-6. **PIT** : 48 mutations, 47 tuées, 1 équivalent justifié (b≥0 vs b>0)
+5. **JaCoCo** : 100 % branches — *voir `docs/jacoco-pit-explication.md` §1*
+6. **PIT** : 48 mutations, 47 tuées, 1 équivalent justifié — *idem §2*
 7. **Seuils** : vérification automatique dans `mvn verify`
+
+> **Doc dédiée pour montrer la compréhension** :
+> [`docs/jacoco-pit-explication.md`](docs/jacoco-pit-explication.md)
+> — ce qu'est JaCoCo (agent, 5 métriques, branches), ce qu'est PIT
+> (mutation, KILLED/SURVIVED, score, équivalents), et comment ils se complètent.
