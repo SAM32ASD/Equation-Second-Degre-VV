@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DeltaInvalideException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Projet V&amp;V - Solveur 2nd Degre</a> &gt; <a href="index.source.html" class="el_package">vv.seconddegre.exceptions</a> &gt; <span class="el_source">DeltaInvalideException.java</span></div><h1>DeltaInvalideException.java</h1><pre class="source lang-java linenums">package vv.seconddegre.exceptions;
+
+/**
+ * =====================================================================
+ *  EXCEPTION : DELTA NON FINI  —  DeltaInvalideException
+ * =====================================================================
+ *
+ * &lt;h2&gt;Cas d'usage&lt;/h2&gt;
+ * Levée lorsque {@code delta = b² − 4ac} vaut {@code NaN} ou
+ * {@code ±Infinité}. Cela se produit en cas de &lt;b&gt;débordement de
+ * plage&lt;/b&gt; (overflow) :
+ * &lt;pre&gt;
+ *   resoudre(1e200, 1e200, 1e200)  →  b² = Inf  →  delta = NaN
+ * &lt;/pre&gt;
+ * Sans cette exception, le solveur renverrait silencieusement un
+ * résultat faux (ou lèverait plus tard une exception obscure).
+ *
+ * &lt;h2&gt;Contexte transporté&lt;/h2&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;Champ typé {@link #getDelta()} : la valeur invalide&lt;/li&gt;
+ *   &lt;li&gt;Via la base : {@code getContexte(Double.class)}&lt;/li&gt;
+ * &lt;/ul&gt;
+ */
+public class DeltaInvalideException extends EquationException {
+
+    /** Identifiant de sérialisation (standard Java). */
+    private static final long serialVersionUID = 1L;
+
+    /** Valeur du discriminant non finie. */
+    private final double delta;
+
+    /**
+     * @param delta valeur non finie (NaN ou ±Inf) du discriminant
+     */
+    public DeltaInvalideException(double delta) {
+<span class="fc" id="L36">        super(</span>
+<span class="fc" id="L37">            String.format(</span>
+                &quot;Le discriminant (%s) n'est pas une valeur finie : calcul impossible.&quot;,
+<span class="fc" id="L39">                delta</span>
+            ),
+<span class="fc" id="L41">            delta</span>
+        );
+<span class="fc" id="L43">        this.delta = delta;</span>
+<span class="fc" id="L44">    }</span>
+
+    /**
+     * @return la valeur du discriminant invalide
+     */
+    public double getDelta() {
+<span class="fc" id="L50">        return delta;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

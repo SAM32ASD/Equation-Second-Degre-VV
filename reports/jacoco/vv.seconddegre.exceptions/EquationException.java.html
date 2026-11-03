@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EquationException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Projet V&amp;V - Solveur 2nd Degre</a> &gt; <a href="index.source.html" class="el_package">vv.seconddegre.exceptions</a> &gt; <span class="el_source">EquationException.java</span></div><h1>EquationException.java</h1><pre class="source lang-java linenums">package vv.seconddegre.exceptions;
+
+/**
+ * =====================================================================
+ *  EXCEPTION DE BASE DU SOLVEUR  —  EquationException
+ * =====================================================================
+ *
+ * &lt;h2&gt;Pourquoi une exception maison ?&lt;/h2&gt;
+ * Les exceptions natives ({@code IllegalArgumentException}, etc.) sont
+ * trop génériques : elles ne transportent pas le &lt;b&gt;contexte métier&lt;/b&gt;
+ * (quel coefficient est fautif, valeur du delta, racines calculées…).
+ * On crée donc une petite hiérarchie dédiée au domaine « équation du
+ * second degré ».
+ *
+ * &lt;h2&gt;Design « générique sans générique »&lt;/h2&gt;
+ * En Java, &lt;b&gt;une classe générique ne peut pas étendre {@code Throwable}&lt;/b&gt;
+ * (erreur de compilation : &lt;i&gt;&quot;a generic class may not extend
+ * java.lang.Throwable&quot;&lt;/i&gt;). On contourne cette contrainte en stockant
+ * le contexte comme {@code Object} et en exposant un accesseur générique :
+ *
+ * &lt;pre&gt;
+ *   public &amp;lt;T&amp;gt; T getContexte(Class&amp;lt;T&amp;gt; type) { return type.cast(contexte); }
+ * &lt;/pre&gt;
+ *
+ * Ainsi chaque sous-classe précise le type réel du contexte, et l'appelant
+ * récupère un objet typé sans cast explicite.
+ *
+ * &lt;h2&gt;Hiérarchie&lt;/h2&gt;
+ * &lt;pre&gt;
+ *   EquationException (RuntimeException)
+ *   ├── CoefficientNulException    contexte : Double  (valeur de a)
+ *   ├── DeltaInvalideException     contexte : Double  (valeur de delta)
+ *   └── ResultatNonFiniException   contexte : double[] (racines)
+ * &lt;/pre&gt;
+ *
+ * &lt;h2&gt;Choix RuntimeException (non checked)&lt;/h2&gt;
+ * Un bug logique (a = 0 dans le domaine métier) n'a pas à être déclaré
+ * dans la signature : on hérite du comportement de
+ * {@code IllegalArgumentException} qu'il remplace.
+ */
+public class EquationException extends RuntimeException {
+
+    /** Identifiant de sérialisation (standard Java). */
+    private static final long serialVersionUID = 1L;
+
+    /** Contexte d'erreur porté par l'exception (type libre). */
+    private final Object contexte;
+
+    /**
+     * Constructeur minimal : message seul, sans contexte.
+     *
+     * @param message description de l'erreur
+     */
+    public EquationException(String message) {
+<span class="fc" id="L55">        this(message, null, null);</span>
+<span class="fc" id="L56">    }</span>
+
+    /**
+     * Constructeur avec contexte métier.
+     *
+     * @param message  description de l'erreur
+     * @param contexte donnée associée (coefficient, delta, tableau…)
+     */
+    public EquationException(String message, Object contexte) {
+<span class="fc" id="L65">        this(message, contexte, null);</span>
+<span class="fc" id="L66">    }</span>
+
+    /**
+     * Constructeur complet avec cause enchaînée.
+     *
+     * @param message  description de l'erreur
+     * @param contexte donnée associée
+     * @param cause    exception d'origine (peut être {@code null})
+     */
+    public EquationException(String message, Object contexte, Throwable cause) {
+<span class="fc" id="L76">        super(message, cause);</span>
+<span class="fc" id="L77">        this.contexte = contexte;</span>
+<span class="fc" id="L78">    }</span>
+
+    /**
+     * Récupère le contexte d'erreur sous le type attendu
+     * (méthode générique — voir Javadoc de classe).
+     *
+     * @param type classe du contexte attendu (ex. {@code Double.class})
+     * @param &lt;T&gt;  type du contexte
+     * @return le contexte casté, ou {@code null}
+     * @throws ClassCastException si le contexte n'est pas du type demandé
+     */
+    public &lt;T&gt; T getContexte(Class&lt;T&gt; type) {
+<span class="fc" id="L90">        return type.cast(contexte);</span>
+    }
+
+    /**
+     * @return le contexte brut non typé (peut être {@code null})
+     */
+    public Object getContexteBrut() {
+<span class="fc" id="L97">        return contexte;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

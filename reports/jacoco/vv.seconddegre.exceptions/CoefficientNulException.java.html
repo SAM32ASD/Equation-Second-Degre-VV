@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CoefficientNulException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Projet V&amp;V - Solveur 2nd Degre</a> &gt; <a href="index.source.html" class="el_package">vv.seconddegre.exceptions</a> &gt; <span class="el_source">CoefficientNulException.java</span></div><h1>CoefficientNulException.java</h1><pre class="source lang-java linenums">package vv.seconddegre.exceptions;
+
+/**
+ * =====================================================================
+ *  EXCEPTION : COEFFICIENT a NUL  —  CoefficientNulException
+ * =====================================================================
+ *
+ * &lt;h2&gt;Cas d'usage&lt;/h2&gt;
+ * Levée par {@code SolveurSecondDegre.resoudre()} lorsque {@code a == 0.0}.
+ * L'équation {@code 0·x² + bx + c = 0} n'est plus du second degré :
+ * on sort du domaine de définition du SUT (cas frontière).
+ *
+ * &lt;h2&gt;Contexte transporté&lt;/h2&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;Champ typé {@link #getCoefficient()} : la valeur fautive (0.0)&lt;/li&gt;
+ *   &lt;li&gt;Via la base : {@code getContexte(Double.class)}&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;h2&gt;Usage en test&lt;/h2&gt;
+ * &lt;pre&gt;
+ *   assertThrows(CoefficientNulException.class,
+ *                () -&amp;gt; solveur.resoudre(0, 1, 2));
+ * &lt;/pre&gt;
+ */
+public class CoefficientNulException extends EquationException {
+
+    /** Identifiant de sérialisation (standard Java). */
+    private static final long serialVersionUID = 1L;
+
+    /** Valeur du coefficient nul (toujours 0.0, gardée pour le contexte). */
+    private final double coefficient;
+
+    /**
+     * @param a valeur du coefficient nul déclenchant l'erreur (0.0)
+     */
+    public CoefficientNulException(double a) {
+<span class="fc" id="L37">        super(</span>
+<span class="fc" id="L38">            String.format(</span>
+                &quot;Le coefficient 'a' (%s) ne peut pas être nul : l'équation n'est pas du second degré.&quot;,
+<span class="fc" id="L40">                a</span>
+            ),
+<span class="fc" id="L42">            a</span>
+        );
+<span class="fc" id="L44">        this.coefficient = a;</span>
+<span class="fc" id="L45">    }</span>
+
+    /**
+     * @return la valeur du coefficient fautif
+     */
+    public double getCoefficient() {
+<span class="fc" id="L51">        return coefficient;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

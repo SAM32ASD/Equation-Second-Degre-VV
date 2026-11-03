@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SolveurSecondDegre.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Projet V&amp;V - Solveur 2nd Degre</a> &gt; <a href="index.source.html" class="el_package">vv.seconddegre</a> &gt; <span class="el_source">SolveurSecondDegre.java</span></div><h1>SolveurSecondDegre.java</h1><pre class="source lang-java linenums">package vv.seconddegre;
+
+import vv.seconddegre.exceptions.CoefficientNulException;
+import vv.seconddegre.exceptions.DeltaInvalideException;
+import vv.seconddegre.exceptions.ResultatNonFiniException;
+
+/**
+ * =====================================================================
+ *  SOLVEUR D'ÉQUATION DU SECOND DEGRÉ  —  ax² + bx + c = 0
+ * =====================================================================
+ *
+ * &lt;h2&gt;1. Rôle de la classe&lt;/h2&gt;
+ * Cette classe est le &lt;b&gt;SUT&lt;/b&gt; (System Under Test) du projet de V&amp;V :
+ * elle calcule les racines réelles d'une équation du second degré à
+ * partir des trois coefficients a, b et c.
+ *
+ * &lt;h2&gt;2. Théorie&lt;/h2&gt;
+ * Le discriminant est {@code delta = b² − 4ac}. Selon sa valeur :
+ * &lt;ul&gt;
+ *   &lt;li&gt;{@code delta &lt; 0}  → aucune racine réelle (tableau vide)&lt;/li&gt;
+ *   &lt;li&gt;{@code delta = 0}  → une racine double : {@code x = −b / 2a}&lt;/li&gt;
+ *   &lt;li&gt;{@code delta &gt; 0}  → deux racines réelles distinctes&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;h2&gt;3. Choix d'implémentation : formule numeriquement stable&lt;/h2&gt;
+ * La formule classique {@code x = (−b ± √delta) / 2a} souffre de
+ * &lt;b&gt;l'élimination catastrophique&lt;/b&gt; : lorsque {@code b² ≫ 4ac},
+ * la soustraction {@code −b − √delta} annule les chiffres significatifs
+ * et dégrade la racine petite (cf. Séance 2, p. 44).
+ *
+ * On utilise donc la &lt;b&gt;forme de citard / algorithme de Kahan&lt;/b&gt; :
+ * &lt;pre&gt;
+ *   q = −½ (b + sign(b)·√delta)     // même signe que b → pas de cancellation
+ *   x1 = q / a
+ *   x2 = c / q
+ * &lt;/pre&gt;
+ * Cela garantit que l'opération de soustraction porte toujours sur deux
+ * nombres de même signe, donc pas d'annulation de chiffres.
+ *
+ * &lt;h2&gt;4. Cas d'exception (bornes du domaine)&lt;/h2&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;{@code a = 0}         → {@link CoefficientNulException}&lt;/li&gt;
+ *   &lt;li&gt;{@code delta = NaN/Inf} → {@link DeltaInvalideException}&lt;/li&gt;
+ *   &lt;li&gt;racine = NaN/Inf       → {@link ResultatNonFiniException}&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Projet V&amp;amp;V
+ * @version 2.0
+ */
+<span class="fc" id="L50">public class SolveurSecondDegre {</span>
+
+    /**
+     * Résout l'équation du second degré {@code a·x² + b·x + c = 0}.
+     *
+     * &lt;h3&gt;Étapes de l'algorithme&lt;/h3&gt;
+     * &lt;ol&gt;
+     *   &lt;li&gt;&lt;b&gt;Validation&lt;/b&gt; : a ≠ 0 sinon exception&lt;/li&gt;
+     *   &lt;li&gt;&lt;b&gt;Discriminant&lt;/b&gt; : delta = b² − 4ac, contrôlé NaN/Inf&lt;/li&gt;
+     *   &lt;li&gt;&lt;b&gt;Branchement&lt;/b&gt; selon le signe de delta&lt;/li&gt;
+     *   &lt;li&gt;&lt;b&gt;Formule stable&lt;/b&gt; si delta &gt; 0 (q, x1, x2)&lt;/li&gt;
+     *   &lt;li&gt;&lt;b&gt;Contrôle final&lt;/b&gt; : les racines doivent être finies&lt;/li&gt;
+     * &lt;/ol&gt;
+     *
+     * @param a coefficient de x² — ne doit pas être nul
+     * @param b coefficient de x
+     * @param c terme constant
+     * @return tableau des racines réelles, trié croissant ;
+     *         longueur 0 (delta &amp;lt; 0), 1 (delta = 0) ou 2 (delta &amp;gt; 0)
+     * @throws CoefficientNulException   si a vaut 0.0
+     * @throws DeltaInvalideException    si delta est NaN ou Infinité
+     * @throws ResultatNonFiniException  si une racine calculée est NaN ou Inf
+     */
+    public double[] resoudre(double a, double b, double c) {
+
+        // ── Étape 1 : validation du domaine ──────────────────────────
+        // a = 0 dégénère en équation du 1er degré → hors domaine.
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (a == 0.0) {</span>
+<span class="fc" id="L78">            throw new CoefficientNulException(a);</span>
+        }
+
+        // ── Étape 2 : calcul du discriminant ─────────────────────────
+        // On garde le calcul littéral (pas de Math.fma) pour rester
+        // lisible et comparer avec les valeurs de référence du cours.
+<span class="fc" id="L84">        double delta = (b * b) - (4.0 * a * c);</span>
+
+        // Protection : débordement de plage (ex. b = 1e200 → b² = Inf).
+<span class="fc bfc" id="L87" title="All 4 branches covered.">        if (Double.isNaN(delta) || Double.isInfinite(delta)) {</span>
+<span class="fc" id="L88">            throw new DeltaInvalideException(delta);</span>
+        }
+
+        // ── Étape 3 : branchement selon le signe de delta ────────────
+        double[] racines;
+
+<span class="fc bfc" id="L94" title="All 2 branches covered.">        if (delta &lt; 0.0) {</span>
+            // Cas 1 : pas de racine réelle → tableau vide.
+<span class="fc" id="L96">            racines = new double[0];</span>
+
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        } else if (delta == 0.0) {</span>
+            // Cas 2 : racine unique (double) : x = −b / 2a.
+<span class="fc" id="L100">            racines = new double[]{ -b / (2.0 * a) };</span>
+
+        } else {
+            // Cas 3 : deux racines distinctes — FORMULE STABLE.
+            //
+            // q = −½ (b + sign(b)·√delta)
+            //   · si b ≥ 0 : q = −½ (b + √delta)  → q ≤ 0, même signe que b
+            //   · si b &lt; 0 : q = −½ (b − √delta)  → q ≥ 0, même signe que b
+            // Dans les deux cas, (b + sign(b)·√delta) est une somme de
+            // nombres de même signe : AUCUNE élimination catastrophique.
+            double q;
+<span class="fc bfc" id="L111" title="All 2 branches covered.">            if (b &gt;= 0.0) {</span>
+<span class="fc" id="L112">                q = -0.5 * (b + Math.sqrt(delta));</span>
+            } else {
+<span class="fc" id="L114">                q = -0.5 * (b - Math.sqrt(delta));</span>
+            }
+
+            // NOTE : q != 0 est garanti ici car delta &gt; 0 et a != 0
+            // (si b&gt;=0 : b+sqrt(delta) &gt; 0 ; si b&lt;0 : b-sqrt(delta) &lt; 0).
+            // La branche de protection q==0 était du code mort → supprimée
+            // pour atteindre 100% de branches couvertes (JaCoCo).
+
+            // Viète : x1 · x2 = c/a  et  x1 + x2 = −b/a
+            //   → x1 = q/a,  x2 = c/q  (produit exact = c/a)
+<span class="fc" id="L124">            double x1 = q / a;</span>
+<span class="fc" id="L125">            double x2 = c / q;</span>
+            // Tri croissant pour un résultat déterministe
+            // (indispensable aux tests métamorphiques).
+<span class="fc" id="L128">            racines = new double[]{ Math.min(x1, x2), Math.max(x1, x2) };</span>
+        }
+
+        // ── Étape 4 : contrôle de finitude du résultat ───────────────
+        // Un résultat Inf signalerait un débordement silencieux.
+        // NOTE : NaN est impossible ici car delta est déjà contrôlé fini
+        // et a ≠ 0 → toutes les divisions portent sur des finis non nuls
+        // au dénominateur (q ≠ 0 prouvé plus haut). On ne teste donc
+        // que isInfinite() — couverture 100% des branches (JaCoCo).
+<span class="fc bfc" id="L137" title="All 2 branches covered.">        for (double x : racines) {</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">            if (Double.isInfinite(x)) {</span>
+<span class="fc" id="L139">                throw new ResultatNonFiniException(racines);</span>
+            }
+        }
+
+<span class="fc" id="L143">        return racines;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
