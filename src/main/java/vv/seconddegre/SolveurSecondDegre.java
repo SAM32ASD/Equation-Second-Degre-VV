@@ -47,7 +47,7 @@ import vv.seconddegre.exceptions.ResultatNonFiniException;
  * @author Projet V&amp;V
  * @version 2.0
  */
-public class SolveurSecondDegre {
+public class SolveurSecondDegre implements ISolveurSecondDegre {
 
     /**
      * Résout l'équation du second degré {@code a·x² + b·x + c = 0}.
@@ -70,6 +70,7 @@ public class SolveurSecondDegre {
      * @throws DeltaInvalideException    si delta est NaN ou Infinité
      * @throws ResultatNonFiniException  si une racine calculée est NaN ou Inf
      */
+    @Override
     public double[] resoudre(double a, double b, double c) {
 
         // ── Étape 1 : validation du domaine ──────────────────────────
